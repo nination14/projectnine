@@ -9,8 +9,10 @@ router.get('/', async (req,res) => {
 });
 
 //Returns a course (including the user that owns the course) for the provided course ID
-router.get('/:id', (req,res) => {
- res.status(200).end();
+router.get('/:id', async (req, res) => {
+    const id = req.params.id;
+    const course = await Course.findByPk(id, { include: [ User ] });
+    res.status(200).json(course);
 });
 
 //Creates a course 
