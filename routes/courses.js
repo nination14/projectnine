@@ -15,7 +15,14 @@ router.get('/:id', async (req, res) => {
     res.json(course);
 });
 
-//Creates a course 
+//Creates a course
+router.post('/', async (req, res) => {
+    const course = await Course.create(req.body);
+    const baseURL = `${req.protocol}://${req.hostname}:${req.socket.localPort}${req.originalUrl}`;
+    const uri = `${baseURL}/${course.id}`;
+    res.set('Location', uri);
+    res.status(201).end();
+});
 
 
 module.exports = router;
