@@ -34,9 +34,15 @@ router.post('/', authenticateUser, async (req, res, next) => {
 //Updates course returns no content
 router.put('/:id', authenticateUser, async (req, res, next) => {
     const id = req.params.id;
-    const course = await Course.findByPk(id, { include: [ User ] });
-    course.update(req.body);
-    res.status(204).end();
+    try {
+        const course = req.body;
+        course.userId = req.currentUser.id;
+        const courseToUpdate = await Course.findByPk(id, { include: [ User ] });
+        courseToUpdate.update(course);
+        res.status(204).end();
+    } catch (error) {
+        next(error);
+    }
 });
 
 //Deletes a course and returns no content

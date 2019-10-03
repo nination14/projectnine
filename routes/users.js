@@ -10,16 +10,21 @@ router.get('/', authenticateUser, function(req, res, next) {
 });
 
 /* POST sets location header  */
-router.post('/', async (req, res) => {
+router.post('/', async (req, res, next) => {
   const user = req.body;
-  user.password = bcryptjs.hashSync(user.password);
-
-  const createdUser = await User.create(user);
-  if (createdUser) {
-    res.set('Location', '/');
-    return res.status(201).end();
-  } else {
-    throw Error('Could not create user');
+  try {
+    user.password = bcryptjs.hashSync(user.password || '');
+    
+    const createdUser = await User.create(user);
+    
+    if (createdUser) {
+      res.set('Location', '/');
+      return res.status(201).end();
+    } else {
+      throw Error('Could not create user');
+    }
+  } catch (error) {
+    next(error);
   }
 });
 
