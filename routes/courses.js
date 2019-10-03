@@ -6,8 +6,8 @@ const authenticateUser = require('./authenticate');
 //Returns a list of courses (includin the user that owns this course)
 router.get('/', async (req, res, next) => {
     const courses = await Course.findAll({ 
-        include: { model: User, attributes: { exclude: ['createdAt', 'updatedAt', 'password'] } }, 
-        attributes: { exclude: ['createdAt', 'updatedAt'] } 
+        include: { model: User, attributes: { exclude: ['createdAt', 'updatedAt', 'password'] } }, //Xtra Credit
+        attributes: { exclude: ['createdAt', 'updatedAt'] } //Xtra Credit
     });
     res.json(courses);
 });
