@@ -5,25 +5,31 @@ const { User } = require('../models');
 async function authenticateUser(req, res, next) {
     const credentials = auth(req);
 
-    try {
-        const user = await User.findOne({ where: { emailAddress: credentials.name }});
-        if (user) {
-            const isAuthenticated = bcryptjs
-            .compareSync(credentials.pass, user.password);
-            if (isAuthenticated) {
-                req.currentUser = user;
-                next();
+    if (credentials) {
+        try {
+            const user = await User.findOne({ where: { emailAddress: credentials.name }});
+            if (user) {
+                const isAuthenticated = bcryptjs
+                .compareSync(credentials.pass, user.password);
+                if (isAuthenticated) {
+                    req.currentUser = user;
+                    next();
+                } else {
+                    const err = new Error('Not Authorized');
+                    err.status = 401;
+                    next(err);
+                }
             } else {
                 const err = new Error('Not Authorized');
                 err.status = 401;
                 next(err);
             }
-        } else {
-            const err = new Error('Not Authorized');
-            err.status = 401;
-            next(err);
+        } catch (error) {
+            next(error);
         }
-    } catch (error) {
+    } else {
+        const err = new Error('Not Authorized');
+        err.status = 401;
         next(err);
     }
 }

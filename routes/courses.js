@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { Course, User } = require('../models');
+const authenticateUser = require('./authenticate');
 
 //Returns a list of courses (includin the user that owns this course)
 router.get('/', async (req, res) => {
@@ -16,7 +17,7 @@ router.get('/:id', async (req, res) => {
 });
 
 //Creates a course
-router.post('/', async (req, res) => {
+router.post('/', authenticateUser, async (req, res) => {
     const course = await Course.create(req.body);
     const uri = `${req.originalUrl}/${course.id}`;
     res.set('Location', uri);
@@ -24,7 +25,7 @@ router.post('/', async (req, res) => {
 });
 
 //Updates course returns no content
-router.put('/:id', async (req, res) => {
+router.put('/:id', authenticateUser, async (req, res) => {
     const id = req.params.id;
     const course = await Course.findByPk(id, { include: [ User ] });
     course.update(req.body);
@@ -32,7 +33,7 @@ router.put('/:id', async (req, res) => {
 });
 
 //Deletes a course and returns no content
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateUser, async (req, res) => {
     const id = req.params.id;
     const course = await Course.findByPk(id, { include: [ User ] });
     course.destroy();
