@@ -23,5 +23,19 @@ router.post('/', async (req, res) => {
     res.status(201).end();
 });
 
+//Updates course returns no content
+router.put('/:id', async (req, res) => {
+    const id = req.params.id;
+    const course = await Course.findByPk(id, { include: [ User ] });
+    course.update(req.body);
+    res.status(204).end();
+});
 
+//Deletes a course and returns no content
+router.delete('/:id', async (req, res) => {
+    const id = req.params.id;
+    const course = await Course.findByPk(id, { include: [ User ] });
+    course.destroy();
+    res.status(204).end(); 
+});
 module.exports = router;
