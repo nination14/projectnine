@@ -1,14 +1,26 @@
 const express = require('express');
 const router = express.Router();
+const bcryptjs = require('bcryptjs');
+const authenticateUser = require('./authenticate');
+const { User } = require('../models');
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+router.get('/', authenticateUser, function(req, res, next) {
+  res.json(req.currentUser);
 });
 
 /* POST sets location header  */
-router.post('/users', (req, res) => {
-  return res.status(201).end();
+router.post('/', async (req, res) => {
+  const user = req.body;
+  user.password = bcryptjs.hashSync(user.password);
+
+  const createdUser = await User.create(user);
+  if (createdUser) {
+    res.set('Location', '/');
+    return res.status(201).end();
+  } else {
+    throw Error('Could not create user');
+  }
 });
 
 

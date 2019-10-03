@@ -1,3 +1,42 @@
+const auth = require('basic-auth');
+const bcryptjs = require('bcryptjs');
+const { User } = require('../models');
+
+async function authenticateUser(req, res, next) {
+    const credentials = auth(req);
+
+    try {
+        const user = await User.findOne({ where: { emailAddress: credentials.name }});
+        if (user) {
+            const isAuthenticated = bcryptjs
+            .compareSync(credentials.pass, user.password);
+            if (isAuthenticated) {
+                req.currentUser = user;
+                next();
+            } else {
+                throw new Error('Not Authorized');
+            }
+        } else {
+            throw new Error('User not found');
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+
+module.exports = authenticateUser;
+
+
+
+
+
+
+
+
+
+
+
+
 // const auth = require('basic-auth');
 // const bcryptjs = require('bcryptjs');
 // const {User} = require('../models');
