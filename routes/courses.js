@@ -5,14 +5,20 @@ const authenticateUser = require('./authenticate');
 
 //Returns a list of courses (includin the user that owns this course)
 router.get('/', async (req, res, next) => {
-    const courses = await Course.findAll({ include: [ User ] });
+    const courses = await Course.findAll({ 
+        include: { model: User, attributes: { exclude: ['createdAt', 'updatedAt', 'password'] } }, 
+        attributes: { exclude: ['createdAt', 'updatedAt'] } 
+    });
     res.json(courses);
 });
 
 //Returns a course (including the user that owns the course) for the provided course ID
 router.get('/:id', async (req, res, next) => {
     const id = req.params.id;
-    const course = await Course.findByPk(id, { include: [ User ] });
+    const course = await Course.findByPk(id, { 
+        include: { model: User, attributes: { exclude: ['createdAt', 'updatedAt', 'password'] } }, 
+        attributes: { exclude: ['createdAt', 'updatedAt'] } 
+    });
     res.json(course);
 });
 
@@ -38,8 +44,12 @@ router.put('/:id', authenticateUser, async (req, res, next) => {
         const course = req.body;
         course.userId = req.currentUser.id;
         const courseToUpdate = await Course.findByPk(id, { include: [ User ] });
-        courseToUpdate.update(course);
-        res.status(204).end();
+        if (courseToUpdate.userId === req.currentUser.id) {
+            courseToUpdate.update(course);
+            res.status(204).end();
+        } else {
+            res.status(403).end();
+        }
     } catch (error) {
         next(error);
     }
@@ -49,7 +59,11 @@ router.put('/:id', authenticateUser, async (req, res, next) => {
 router.delete('/:id', authenticateUser, async (req, res, next) => {
     const id = req.params.id;
     const course = await Course.findByPk(id, { include: [ User ] });
-    course.destroy();
-    res.status(204).end(); 
+    if (req.currentUser.id === course.userId) {
+        course.destroy();
+        res.status(204).end(); 
+    } else {
+        res.status(403).end();
+    }
 });
 module.exports = router;

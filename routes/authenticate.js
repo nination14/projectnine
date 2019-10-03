@@ -7,12 +7,17 @@ async function authenticateUser(req, res, next) {
 
     if (credentials) {
         try {
-            const user = await User.findOne({ where: { emailAddress: credentials.name }});
+            const user = await User.findOne({ where: { emailAddress: credentials.name }, attributes: { exclude: ['createdAt', 'updatedAt',] }});
             if (user) {
                 const isAuthenticated = bcryptjs
                 .compareSync(credentials.pass, user.password);
                 if (isAuthenticated) {
-                    req.currentUser = user;
+                    req.currentUser = {
+                        id: user.id,
+                        firstName: user.firstName,
+                        lastName: user.lastName,
+                        emailAddress: user.emailAddress
+                    }; 
                     next();
                 } else {
                     const err = new Error('Not Authorized');
