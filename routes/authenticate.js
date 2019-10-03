@@ -14,7 +14,9 @@ async function authenticateUser(req, res, next) {
                 req.currentUser = user;
                 next();
             } else {
-                throw new Error('Not Authorized');
+                const err = new Error('Not Authorized');
+                err.status = 401;
+                next(err);
             }
         } else {
             throw new Error('User not found');
