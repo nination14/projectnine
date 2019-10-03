@@ -18,8 +18,10 @@ router.get('/:id', async (req, res) => {
 
 //Creates a course
 router.post('/', authenticateUser, async (req, res) => {
-    const course = await Course.create(req.body);
-    const uri = `${req.originalUrl}/${course.id}`;
+    const course = req.body;
+    course.userId = req.currentUser.id;
+    const newCourse= await Course.create(course);
+    const uri = `${req.originalUrl}/${newCourse.id}`;
     res.set('Location', uri);
     res.status(201).end();
 });
