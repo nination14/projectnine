@@ -19,10 +19,12 @@ async function authenticateUser(req, res, next) {
                 next(err);
             }
         } else {
-            throw new Error('User not found');
+            const err = new Error('Not Authorized');
+            err.status = 401;
+            next(err);
         }
     } catch (error) {
-        throw error;
+        next(err);
     }
 }
 
