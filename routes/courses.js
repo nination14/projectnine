@@ -33,8 +33,12 @@ router.post('/', authenticateUser, async (req, res, next) => {
         res.set('Location', uri);
         res.status(201).end();
     } catch (error) {
-        next(error);
-    }
+      if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
+            error.message = 'Validation Error';
+            error.status=400;
+      } 
+      next(error);
+    } 
 });
 
 //Updates course returns no content
@@ -51,8 +55,11 @@ router.put('/:id', authenticateUser, async (req, res, next) => {
             res.status(403).end();
         }
     } catch (error) {
-        next(error);
-    }
+        if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
+            error.message = 'Validation Error';
+            error.status=400;
+        }
+    }    next(error);
 });
 
 //Deletes a course and returns no content
