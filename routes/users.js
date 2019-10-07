@@ -24,6 +24,10 @@ router.post('/', async (req, res, next) => {
       throw Error('Could not create user');
     }
   } catch (error) {
+    if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
+      error.message = 'Validation Error';
+      error.status=400;
+    }
     next(error);
   }
 });

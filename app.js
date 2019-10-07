@@ -37,7 +37,7 @@ app.use(function(err, req, res, next) {
   }
 
   const errorMessages = (err.errors||[]).map( error => error.message );
-  res.status(err.status || 400).json({
+  res.status(err.status || 500).json({
     message: err.message,
     errors: errorMessages,
     // error: err //{},
